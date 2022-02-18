@@ -1,0 +1,15 @@
+#!/bin/bash --login
+#$ -cwd
+#$ -N p2p_model-julia_gams
+#$ -o /net/work/weibeza/2021-mes-cppa_bangladesh/_output/$JOB_ID.$TASK_ID.out
+#$ -j y
+#$ -l h_rt=120000
+#$ -l mem_free=1G
+#$ -pe mp 1
+#$ -m bae
+#$ -M jew@wip.tu-berlin.de
+
+module purge
+module add julia/1.6.1
+module add gams/32.2.0
+julia /net/work/weibeza/2021-mes-cppa_bangladesh/p2p_model-julia_init.jl $par_job

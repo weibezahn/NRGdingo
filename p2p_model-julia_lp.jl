@@ -21,7 +21,6 @@ function build_p2p_cppa_lp_model(T, N, p_cppa, p_i, p_lem)
         S_c[t in T, n in N] >= 0    # charge of battery of house n in time step t
         S_d[t in T, n in N] >= 0    # discharge of battery of house n in time step t
         S[t in T, n in N] >= 0      # energy storage level in battery of house n in time step t
-        # S_d[t in T[1],n in N] == 0)   # fix storage leven/discharge in first time step to 0?
     end
 
     ## Objective function
@@ -86,7 +85,7 @@ end
 """
 Function to export the results of the LP model
 """
-function export_parameters_lp(model,p_i,job_id)
+function export_parameters_lp(model,p_i,job,season,jid,case)
     
     # export parameter
     
@@ -103,7 +102,7 @@ function export_parameters_lp(model,p_i,job_id)
     # Excel export
 
     XLSX.writetable(
-        "_output/results_lp-$job_id.xlsx",
+        "_output/$jid-$job-s$season-results_lp-$case.xlsx",
         Objective = ( collect(DataFrames.eachcol(C_exp)), DataFrames.names(C_exp) ),
         Renewables = ( collect(DataFrames.eachcol(R_exp)), DataFrames.names(R_exp) ),
         Import = ( collect(DataFrames.eachcol(I_exp)), DataFrames.names(I_exp) ),
@@ -118,7 +117,7 @@ end
 ## Load p_lem from MCP model run
 if plem_load == true
     ## load p_lem from file
-    mcp_results_file = "_output/results_mcp-$job.xlsx"
+    mcp_results_file = "_output/$jid-$job-s$season-results_mcp.xlsx"
     plem_df = DataFrame(XLSX.readtable(mcp_results_file, "P_LEM")...);
     # plem_df = CSV.read("_input/data_plem.csv", DataFrame);
     p_lem = Matrix(plem_df);
@@ -130,20 +129,34 @@ else
 end
 
 ## Build CPPA LP models
+@info "building LP model case I with p_cppa = 0 and" p_i_I
+p2p_lp_I = build_p2p_cppa_lp_model(T, N, 0, p_i_I, p_lem)
 @info "building LP model case II with" p_cppa p_i_II
 p2p_lp_II = build_p2p_cppa_lp_model(T, N, p_cppa, p_i_II, p_lem)
 @info "building LP model case IIa with" p_cppa p_i_IIa
 p2p_lp_IIa = build_p2p_cppa_lp_model(T, N, p_cppa, p_i_IIa, p_lem)
 
 ## Solve
+set_optimizer(p2p_lp_I, Clp.Optimizer)
 set_optimizer(p2p_lp_II, Clp.Optimizer)
 set_optimizer(p2p_lp_IIa, Clp.Optimizer)
+@info "solving" p2p_lp_I
+optimize!(p2p_lp_I)
 @info "solving" p2p_lp_II
 optimize!(p2p_lp_II)
 @info "solving" p2p_lp_IIa
 optimize!(p2p_lp_IIa)
 
+# Solution status
+@info termination_status(p2p_lp_I)
+@info solution_summary(p2p_lp_I)
+@info termination_status(p2p_lp_II)
+@info solution_summary(p2p_lp_II)
+@info termination_status(p2p_lp_IIa)
+@info solution_summary(p2p_lp_IIa)
+
 ## Post-processing
 @info "exporting LP results"
-export_parameters_lp(p2p_lp_II,p_i_II,"$job-II")
-export_parameters_lp(p2p_lp_IIa,p_i_IIa,"$job-IIa")
+export_parameters_lp(p2p_lp_I,p_i_I,job,season,jid,"I")
+export_parameters_lp(p2p_lp_II,p_i_II,job,season,jid,"II")
+export_parameters_lp(p2p_lp_IIa,p_i_IIa,job,season,jid,"IIa")
