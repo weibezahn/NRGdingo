@@ -1,3 +1,5 @@
+[![DOI](https://zenodo.org/badge/393380720.svg)](https://zenodo.org/badge/latestdoi/393380720)
+
 # NRGdingo
 ## CPPA Swarm Grids
 
