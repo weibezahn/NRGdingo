@@ -1,0 +1,33 @@
+{
+    "upload_type": "software",
+    
+    "creators": [
+        {
+            "orcid": "0000-0003-1202-1709",
+            "affiliation": "Copenhagen School of Energy Infrastructure (CSEI)",
+            "name": "Weibezahn, Jens"
+        },
+        {
+            "orcid": "0000-0001-5778-0464",
+            "affiliation": "Copenhagen School of Energy Infrastructure (CSEI)",
+            "name": "Lüth, Alexandra"
+        },
+    ],
+
+    "license": "mit",
+
+    "title": "P2P Energy Trading Model for CPPAs in Swarm Grids (NRGdingo.CPPA)",
+
+    "related_identifiers": [
+        {
+            "scheme": "doi",
+            "identifier": "10.5547/2160-5890.11.1.rdum",
+            "relation": "isSupplementTo",
+            "resource_type": "publication-article"
+        }
+    ],
+
+    "keywords": ["decentralized renewable energy", "swarm grids", "grid integration", "power purchase agreements"],
+
+    "grants": [{"id": "10.13039/501100000780::101025788"}]
+}
